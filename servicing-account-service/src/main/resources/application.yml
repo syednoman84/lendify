@@ -1,0 +1,16 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lendify_servicingdb
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  secret: piz3Wp8O41+6UChTE9zobuVExrmCScYV4bI4M+Q4YTZS6a8Y0VSayvmqjbqV4ap8NHIqLaC0IrMqt36+WiwfWQ==
+  expirationMs: 3600000

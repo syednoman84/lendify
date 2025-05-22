@@ -30,7 +30,8 @@ public class DataInitializer implements CommandLineRunner {
                 "VIEW_APPLICATIONS",
                 "APPROVE_APPLICATIONS",
                 "UPLOAD_DOCUMENTS",
-                "VIEW_OFFERS"
+                "VIEW_OFFERS",
+                "CREATE_APPLICATION"
         );
 
         Map<String, Permission> permissions = new HashMap<>();
