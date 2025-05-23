@@ -1,10 +1,12 @@
 package com.example.servicingaccountservice.service;
 
+import com.example.servicingaccountservice.client.PolicyExecutionClient;
 import com.example.servicingaccountservice.dto.request.ApplicationPatchRequest;
 import com.example.servicingaccountservice.entity.Application;
 import com.example.servicingaccountservice.entity.UserApplication;
 import com.example.servicingaccountservice.repository.ApplicationRepository;
 import com.example.servicingaccountservice.repository.UserApplicationRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ public class ApplicationService {
     @Autowired private UserApplicationRepository userAppRepo;
     @Autowired private ApplicationRepository applicationRepo;
     @Autowired private ObjectMapper objectMapper;
+    @Autowired private PolicyExecutionClient policyExecutionClient;
 
     public Optional<Application> getActiveApplicationForUser(UUID userId) {
         return userAppRepo.findByUserIdAndActiveTrue(userId)
@@ -50,9 +53,19 @@ public class ApplicationService {
         app.setModifiedAt(now);
         app.setRequestUrl(requestUrl);
         app.setData(initialData);
-        return applicationRepo.save(app);
-    }
+        applicationRepo.save(app);
 
+        // 4. Trigger policy execution
+        try {
+            JsonNode firstTask = policyExecutionClient.executePolicy(appId, productId, requestUrl);
+            System.out.println("First task returned from Policy service: " + firstTask.toPrettyString());
+        } catch (Exception ex) {
+            // Log error, optionally rollback or alert
+            ex.printStackTrace();
+        }
+
+        return app;
+    }
 
     public Application patchApplication(UUID applicationId, ApplicationPatchRequest patchRequest) throws Exception {
         Application existingApp = applicationRepo.findByApplicationId(applicationId)
@@ -67,5 +80,4 @@ public class ApplicationService {
 
         return applicationRepo.save(existingApp);
     }
-
 }
